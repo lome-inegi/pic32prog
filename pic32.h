@@ -8,21 +8,16 @@
  * See the accompanying file "COPYING" for more details.
  */
 
-#ifndef _PIC32_H
-#define _PIC32_H
 /*
  * Programing executive.
  * Described in PIC32MX Flash Programming Specification.
  */
-#define PIC32_PE_LOADER_LEN    42
-#define PIC32_PEMM_LOADER_LEN  22
+#define	PIC32_PE_LOADER_LEN 42
 
 extern const unsigned short pic32_pe_loader[];
-extern const unsigned short pic32_pemm_loader[];
 extern const unsigned pic32_pemx1[];
 extern const unsigned pic32_pemx3[];
 extern const unsigned pic32_pemz[];
-extern const unsigned pic32_pemm[];
 
 /*
  * TAP instructions (5-bit).
@@ -487,5 +482,3 @@ extern const unsigned pic32_pemm[];
 #define MX1_CFG3_IOL1WAY        0x20000000 /* Peripheral Pin Select - only 1 reconfig */
 #define MX1_CFG3_FUSBIDIO       0x40000000 /* USBID pin: controlled by USB */
 #define MX1_CFG3_FVBUSONIO      0x80000000 /* VBuson pin: controlled by USB */
-
-#endif

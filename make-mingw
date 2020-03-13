@@ -1,53 +1,33 @@
-CC              = gcc
-GITCOUNT        = $(shell git rev-list HEAD --count)
-CFLAGS          = -Wall -g -O -DMINGW32 -Ihidapi/hidapi -DGITCOUNT='"$(GITCOUNT)"'
+#CC		= gcc
+CC		= i686-w64-mingw32-gcc
+SVNVERS         = $(shell git rev-parse --short HEAD)
+CFLAGS          = -Wall -g -O -DMINGW32 -Ilibusb-win32 -Ihidapi -DSVNVERSION='"$(SVNVERS)"'
 LDFLAGS         = -s
 
 # Windows
-LIBS            += -Lhidapi/windows/.libs -lhidapi -lsetupapi
+LIBS            += -lhid -lsetupapi
+HIDSRC          = hidapi/windows/hid.c
 
-PROG_OBJS       = pic32prog.o target.o executive.o serial.o \
+PROG_OBJS       = pic32prog.o target.o executive.o hid.o serial.o \
                   adapter-pickit2.o adapter-hidboot.o adapter-an1388.o\
                   adapter-bitbang.o adapter-stk500v2.o adapter-uhb.o \
-                  adapter-an1388-uart.o configure.o \
-                  family-mx1.o family-mx3.o family-mz.o \
-                  hidapi/windows/.libs/libhidapi.a
+                  family-mx1.o family-mx3.o family-mz.o
+#PROG_OBJS      += adapter-mpsse.o
+#LIBS           += -Llibusb-win32/x86 -lusb0_x86
 
-# JTAG adapters based on FT2232 chip
-CFLAGS         += -Ilibusb-win32 -DUSE_MPSSE
-PROG_OBJS      += adapter-mpsse.o
-LIBS           += -Llibusb-win32 -lusb-1.0
+all:		pic32prog.exe
 
-# Compiling Windows binary from Linux
-ifeq (/usr/bin/i586-mingw32msvc-gcc,$(wildcard /usr/bin/i586-mingw32msvc-gcc))
-    CC          = i586-mingw32msvc-gcc
-endif
-ifeq (/usr/bin/i686-w64-mingw32-gcc,$(wildcard /usr/bin/i686-w64-mingw32-gcc))
-    CC          = i686-w64-mingw32-gcc
-endif
-
-all:            pic32prog.exe
-
-pic32prog.exe:  $(PROG_OBJS)
+pic32prog.exe:	$(PROG_OBJS)
 		$(CC) $(LDFLAGS) -o $@ $(PROG_OBJS) $(LIBS)
 
-hidapi/windows/.libs/libhidapi.a:
-		cd hidapi && ./bootstrap && ./configure --host=i586-mingw32msvc && make
+hid.o:          $(HIDSRC)
+		$(CC) $(CFLAGS) -c -o $@ $<
 
 ###
-adapter-an1388.o: adapter-an1388.c adapter.h hidapi/hidapi/hidapi.h pic32.h
-adapter-an1388-uart.o: adapter-an1388-uart.c adapter.h pic32.h serial.h
-adapter-bitbang.o: adapter-bitbang.c adapter.h pic32.h serial.h bitbang/ICSP_v1E.inc
-adapter-hidboot.o: adapter-hidboot.c adapter.h hidapi/hidapi/hidapi.h pic32.h
-adapter-mpsse.o: adapter-mpsse.c libusb-win32/libusb-1.0/libusb.h adapter.h pic32.h
-adapter-pickit2.o: adapter-pickit2.c adapter.h hidapi/hidapi/hidapi.h pickit2.h pic32.h
-adapter-stk500v2.o: adapter-stk500v2.c adapter.h pic32.h serial.h
-adapter-uhb.o: adapter-uhb.c adapter.h hidapi/hidapi/hidapi.h pic32.h
-configure.o: configure.c target.h adapter.h
+adapter-an1388.o: adapter-an1388.c adapter.h hidapi/hidapi.h pic32.h
+adapter-hidboot.o: adapter-hidboot.c adapter.h hidapi/hidapi.h pic32.h
+adapter-mpsse.o: adapter-mpsse.c adapter.h
+adapter-pickit2.o: adapter-pickit2.c adapter.h pickit2.h pic32.h
 executive.o: executive.c pic32.h
-family-mx1.o: family-mx1.c pic32.h
-family-mx3.o: family-mx3.c pic32.h
-family-mz.o: family-mz.c pic32.h
-pic32prog.o: pic32prog.c target.h adapter.h serial.h localize.h
-serial.o: serial.c adapter.h
+pic32prog.o: pic32prog.c target.h localize.h
 target.o: target.c target.h adapter.h localize.h pic32.h

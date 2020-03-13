@@ -9,9 +9,6 @@
  * See the accompanying file "COPYING" for more details.
  */
 
-#ifndef _PICKIT2_H
-#define _PICKIT2_H
-
 /*
  * PICkit2 Commands.
  */
@@ -163,5 +160,3 @@
 #define SCRIPT_VDD_GND_ON          0xFD     // +
 #define SCRIPT_VDD_OFF             0xFE     // +
 #define SCRIPT_VDD_ON              0xFF     // +
-
-#endif
